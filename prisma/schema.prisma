@@ -1,0 +1,336 @@
+generator client {
+  provider      = "prisma-client-js"
+  //binaryTargets = ["native", "rhel-openssl-1.0.x"]
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  user_id         Int              @id @default(autoincrement())
+  user_email      String           @unique
+  user_phone      String?          @unique
+  user_password   String
+  user_first_name String
+  user_last_name  String
+  user_dob        DateTime
+  user_address    String
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+  created_by      Int?
+  updated_by      Int?
+  email_confirmed Boolean          @default(false)
+  provider_id     Int?
+  policies        policies[]
+  authentication  authentications?
+  quotations      quotations[]
+  sessions        sessions[]
+  reviews         reviews[]
+  shopping_carts  shopping_carts[]
+  provider        providers?       @relation(fields: [provider_id], references: [provider_id])
+}
+
+model authentications {
+  auth_id                             Int       @id @default(autoincrement())
+  user_id                             Int       @unique
+  otp_secret_key                      String?
+  otp_expiration                      DateTime?
+  auth_provider                       String?   @db.Text
+  auth_provider_id                    String?   @db.Text
+  auth_provider_payload               Json?
+  reset_token                         String?
+  reset_token_expiration              DateTime?
+  email_confirmation_token            String?
+  email_confirmation_token_expiration DateTime?
+  created_at                          DateTime  @default(now())
+  updated_at                          DateTime  @updatedAt
+  created_by                          Int?
+  updated_by                          Int?
+  user                                users     @relation(fields: [user_id], references: [user_id])
+}
+
+model product_categories {
+  category_id     Int               @id @default(autoincrement())
+  category_name   String
+  category_desc   String
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+  created_by      Int?
+  updated_by      Int?
+  products        products[]
+  insured_objects insured_objects[]
+}
+
+model products {
+  product_id          Int                   @id @default(autoincrement())
+  product_name        String
+  product_desc        String
+  product_min_price   Float
+  product_max_price   Float
+  category_id         Int
+  provider_id         Int
+  fields_definition   Json
+  formula_logic       Json
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
+  created_by          Int?
+  updated_by          Int?
+  provider            providers    @relation(fields: [provider_id], references: [provider_id])
+  category            product_categories    @relation(fields: [category_id], references: [category_id])
+  product_attachments product_attachments[]
+  quotations          quotations[]
+  policies            policies[]
+  vouchers            vouchers[]
+}
+
+model product_attachments {
+  attachment_id        Int      @id @default(autoincrement())
+  product_id           Int
+  attachment_url       String
+  attachment_filename  String
+  attachment_mime_type String
+  is_logo              Boolean  @default(false)
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+  created_by           Int?
+  updated_by           Int?
+  product              products @relation(fields: [product_id], references: [product_id])
+}
+
+model quotations {
+  quotation_id                      Int              @id @default(autoincrement())
+  quotation_no                      String           @unique
+  user_id                           Int
+  provider_id                       Int
+  product_id                        Int
+  object_details                    Json
+  quotation_premium_amount          Float
+  quotation_discount_percent        Float            @default(0)
+  quotation_discount_amount         Float            @default(0)
+  quotation_comission_percent       Float            @default(0)
+  quotation_comission_amount        Float            @default(0)
+  quotation_wht_percent             Float            @default(0)
+  quotation_vat_percent             Float            @default(0)
+  quotation_additional_cover_amount Float?
+  created_at                        DateTime         @default(now())
+  updated_at                        DateTime         @updatedAt
+  created_by                        Int?
+  updated_by                        Int?
+  user                              users            @relation(fields: [user_id], references: [user_id])
+  provider                          providers        @relation(fields: [provider_id], references: [provider_id])
+  product                           products         @relation(fields: [product_id], references: [product_id])
+  policies                          policies[]
+  shopping_carts                    shopping_carts[]
+}
+
+model policies {
+  policy_id                      Int                @id @default(autoincrement())
+  policy_no                      String             @unique
+  user_id                        Int
+  provider_id                    Int
+  quotation_id                   Int
+  product_id                     Int
+  policy_start_date              DateTime
+  policy_end_date                DateTime
+  policy_premium_amount          Float
+  policy_discount_percent        Float              @default(0)
+  policy_discount_amount         Float              @default(0)
+  policy_comission_percent       Float              @default(0)
+  policy_comission_amount        Float              @default(0)
+  policy_wht_percent             Float              @default(0)
+  policy_vat_percent             Float              @default(0)
+  policy_additional_cover_amount Float?
+  policy_terms                   String
+  policy_coverage                String
+  policy_deductible              Float
+  created_at                     DateTime           @default(now())
+  updated_at                     DateTime           @updatedAt
+  created_by                     Int?
+  updated_by                     Int?
+  user                           users              @relation(fields: [user_id], references: [user_id])
+  quotation                      quotations         @relation(fields: [quotation_id], references: [quotation_id])
+  product                        products           @relation(fields: [product_id], references: [product_id])
+  provider                       providers          @relation(fields: [provider_id], references: [provider_id])
+  documents                      policy_documents[]
+  reviews                        reviews[]
+  insured_objects                insured_objects[]
+  payments                       payments[]
+}
+
+model policy_documents {
+  document_id        Int      @id @default(autoincrement())
+  policy_id          Int
+  document_url       String
+  document_filename  String
+  document_mime_type String
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  created_by         Int?
+  updated_by         Int?
+  policy             policies @relation(fields: [policy_id], references: [policy_id])
+}
+
+model sessions {
+  session_id    Int           @id @default(autoincrement())
+  user_id       Int
+  session_token String        @unique
+  ip_address    String
+  user_agent    String
+  last_activity DateTime
+  status        SessionStatus @default(ACTIVE)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  created_by    Int?
+  updated_by    Int?
+  user          users         @relation(fields: [user_id], references: [user_id])
+}
+
+enum SessionStatus {
+  ACTIVE
+  LOGGED_OUT
+}
+
+model claims {
+  claim_id Int       @id @default(autoincrement())
+  reviews  reviews[]
+}
+
+model reviews {
+  review_id   Int                  @id @default(autoincrement())
+  policy_id   Int?
+  claim_id    Int?
+  user_id     Int
+  rating      Int
+  comment     String?
+  review_type ReviewType?          @default(POLICY)
+  created_at  DateTime             @default(now())
+  updated_at  DateTime             @updatedAt
+  created_by  Int?
+  updated_by  Int?
+  policy      policies?            @relation(fields: [policy_id], references: [policy_id])
+  claim       claims?              @relation(fields: [claim_id], references: [claim_id])
+  user        users                @relation(fields: [user_id], references: [user_id])
+  attachments review_attachments[]
+}
+
+enum ReviewType {
+  POLICY
+  CLAIM
+}
+
+model review_attachments {
+  attachment_id        Int      @id @default(autoincrement())
+  review_id            Int
+  attachment_url       String
+  attachment_filename  String
+  attachment_mime_type String
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+  created_by           Int?
+  updated_by           Int?
+  review               reviews  @relation(fields: [review_id], references: [review_id])
+}
+
+model insured_objects {
+  object_id    Int                @id @default(autoincrement())
+  object_name  String
+  object_value Float
+  object_desc  String
+  category_id  Int
+  policy_id    Int
+  created_at   DateTime           @default(now())
+  updated_at   DateTime           @updatedAt
+  created_by   Int?
+  updated_by   Int?
+  category     product_categories @relation(fields: [category_id], references: [category_id])
+  policy       policies           @relation(fields: [policy_id], references: [policy_id])
+}
+
+model payments {
+  payment_id           Int        @id @default(autoincrement())
+  payment_amount       Float
+  payment_date         DateTime
+  payment_gateway_name String
+  payment_gateway_ref  String
+  policy_id            Int
+  created_at           DateTime   @default(now())
+  updated_at           DateTime   @updatedAt
+  created_by           Int?
+  updated_by           Int?
+  policy               policies   @relation(fields: [policy_id], references: [policy_id])
+  vouchers             vouchers[]
+}
+
+model shopping_carts {
+  cart_id       Int         @id @default(autoincrement())
+  user_id       Int
+  product_id    Int
+  object_id     Int
+  quotation_id  Int?
+  cart_quantity Int
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+  created_by    Int?
+  updated_by    Int?
+  user          users       @relation(fields: [user_id], references: [user_id])
+  quotation     quotations? @relation(fields: [quotation_id], references: [quotation_id])
+  vouchers      vouchers[]
+}
+
+model providers {
+  provider_id      Int          @id @default(autoincrement())
+  provider_name    String
+  provider_address String
+  provider_phone   String
+  provider_email   String
+  provider_logo    String
+  provider_type    ProviderType
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+  created_by       Int?
+  updated_by       Int?
+  users            users[]
+  policies         policies[]
+  quotations       quotations[]
+  products         products[]
+}
+
+enum ProviderType {
+  INSURER
+  BROKER
+  AGENT
+  CUSTOMER
+}
+
+model vouchers {
+  voucher_id       Int             @id @default(autoincrement())
+  voucher_code     String          @unique
+  voucher_type     String
+  voucher_amount   Float
+  product_id       Int
+  shopping_cart_id Int?
+  payment_id       Int?
+  valid_from       DateTime
+  valid_until      DateTime
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+  created_by       Int?
+  updated_by       Int?
+  product          products        @relation(fields: [product_id], references: [product_id])
+  shopping_cart    shopping_carts? @relation(fields: [shopping_cart_id], references: [cart_id])
+  payment          payments?       @relation(fields: [payment_id], references: [payment_id])
+}
+
+model external_data {
+  data_id    Int      @id @default(autoincrement())
+  data_name  String
+  data_type  String
+  data_value Json
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by Int?
+  updated_by Int?
+}

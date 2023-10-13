@@ -1,0 +1,639 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: k-api-dev
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: '3'
+configValidationMode: error
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-southeast-3
+  profile: serverlessAdmin
+  apiGateway:
+    apiKeys:
+      - name: kapikey-dev
+        value: sdfsdfsdfsdf23452dc212asdsdfsd
+        description: API key for k-api
+# you can overwrite defaults here
+#  stage: dev
+#  region: us-east-1
+
+# you can add statements to the Lambda function's IAM Role here
+#  iam:
+#    role:
+#      statements:
+#        - Effect: "Allow"
+#          Action:
+#            - "s3:ListBucket"
+#          Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+#        - Effect: "Allow"
+#          Action:
+#            - "s3:PutObject"
+#          Resource:
+#            Fn::Join:
+#              - ""
+#              - - "arn:aws:s3:::"
+#                - "Ref" : "ServerlessDeploymentBucket"
+#                - "/*"
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+# you can add packaging information here
+#package:
+#  patterns:
+#    - '!exclude-me.js'
+#    - '!exclude-me-dir/**'
+#    - include-me.js
+#    - include-me-dir/**
+
+plugins:
+  # - serverless-webpack
+  - serverless-s3-sync
+  - serverless-offline
+
+package:
+  individually: true
+
+custom:
+  s3Sync:
+    - bucketName: kapi-demo-bucket-upload
+      localDir: UploadData
+  serverless-offline:
+    httpPort: 3001
+
+functions:
+  # hello:
+  #   handler: handler.hello
+  # getUser:
+  #   handler: lambdas/getUser.handler
+  #   events:
+  #     - http:
+  #         path: get-user/{id}
+  #         method: GET
+  #         cors: true
+  #         private: true
+  users:
+    handler: lambdas/users.handler
+    events:
+      - http:
+          path: users
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: users
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: users/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: users/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: users/{id}
+          method: DELETE
+          cors: true
+          private: true
+  authentication:
+    handler: lambdas/authentication.handler
+    events:
+      - http:
+          path: /auth/login
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: /auth/logout
+          method: DELETE
+          cors: true
+          private: true
+      - http:
+          path: /auth/login/otp
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: /auth/login/phone
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: /auth/login/oauth
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: /auth/refresh-token
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: /auth/forgot-password
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: /auth/change-password
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: /auth/email/confirmation
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: /auth/email/confirmation/send
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: /auth/sessions
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: /auth/sessions
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: /auth/sessions/{id}
+          method: PUT
+          cors: true
+          private: true
+
+  providers:
+    handler: lambdas/providers.handler
+    events:
+      - http:
+          path: providers
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: providers
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: providers/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: providers/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: providers/{id}
+          method: DELETE
+          cors: true
+          private: true
+  externalData:
+    handler: lambdas/externalData.handler
+    events:
+      - http:
+          path: external-data
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: external-data
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: external-data/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: external-data/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: external-data/{id}
+          method: DELETE
+          cors: true
+          private: true
+  insuredObjects:
+    handler: lambdas/insuredObjects.handler
+    events:
+      - http:
+          path: insured-objects
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: insured-objects
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: insured-objects/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: insured-objects/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: insured-objects/{id}
+          method: DELETE
+          cors: true
+          private: true
+  payments:
+    handler: lambdas/payments.handler
+    events:
+      - http:
+          path: payments
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: payments
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: payments/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: payments/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: payments/{id}
+          method: DELETE
+          cors: true
+          private: true
+  policies:
+    handler: lambdas/policies.handler
+    events:
+      - http:
+          path: policies
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: policies
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: policies/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: policies/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: policies/{id}
+          method: DELETE
+          cors: true
+          private: true
+  policyDocuments:
+    handler: lambdas/policyDocuments.handler
+    events:
+      - http:
+          path: policy-documents
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: policy-documents
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: policy-documents/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: policy-documents/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: policy-documents/{id}
+          method: DELETE
+          cors: true
+          private: true
+  productAttachments:
+    handler: lambdas/productAttachments.handler
+    events:
+      - http:
+          path: product-attachments
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: product-attachments
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: product-attachments/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: product-attachments/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: product-attachments/{id}
+          method: DELETE
+          cors: true
+          private: true
+  productCategories:
+    handler: lambdas/productCategories.handler
+    events:
+      - http:
+          path: product-categories
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: product-categories
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: product-categories/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: product-categories/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: product-categories/{id}
+          method: DELETE
+          cors: true
+          private: true
+  products:
+    handler: lambdas/products.handler
+    events:
+      - http:
+          path: products
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: products
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: products/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: products/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: products/{id}
+          method: DELETE
+          cors: true
+          private: true
+  quotations:
+    handler: lambdas/quotations.handler
+    events:
+      - http:
+          path: quotations
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: quotations
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: quotations/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: quotations/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: quotations/{id}
+          method: DELETE
+          cors: true
+          private: true
+  reviewAttachments:
+    handler: lambdas/reviewAttachments.handler
+    events:
+      - http:
+          path: review-attachments
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: review-attachments
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: review-attachments/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: review-attachments/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: review-attachments/{id}
+          method: DELETE
+          cors: true
+          private: true
+  reviews:
+    handler: lambdas/reviews.handler
+    events:
+      - http:
+          path: reviews
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: reviews
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: reviews/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: reviews/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: reviews/{id}
+          method: DELETE
+          cors: true
+          private: true
+  shoppingCarts:
+    handler: lambdas/shoppingCarts.handler
+    events:
+      - http:
+          path: shopping-carts
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: shopping-carts
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: shopping-carts/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: shopping-carts/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: shopping-carts/{id}
+          method: DELETE
+          cors: true
+          private: true
+  vouchers:
+    handler: lambdas/vouchers.handler
+    events:
+      - http:
+          path: vouchers
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: vouchers
+          method: POST
+          cors: true
+          private: true
+      - http:
+          path: vouchers/{id}
+          method: GET
+          cors: true
+          private: true
+      - http:
+          path: vouchers/{id}
+          method: PUT
+          cors: true
+          private: true
+      - http:
+          path: vouchers/{id}
+          method: DELETE
+          cors: true
+          private: true
+resources:
+  Resources:
+    DemoBucketUpload:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: kapi-demo-bucket-upload
+#    The following are a few example events you can configure
+#    NOTE: Please make sure to change your handler code to work with those events
+#    Check the event documentation for details
+#    events:
+#      - httpApi:
+#          path: /users/create
+#          method: get
+#      - websocket: $connect
+#      - s3: ${env:BUCKET}
+#      - schedule: rate(10 minutes)
+#      - sns: greeter-topic
+#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
+#      - alexaSkill: amzn1.ask.skill.xx-xx-xx-xx
+#      - alexaSmartHome: amzn1.ask.skill.xx-xx-xx-xx
+#      - iot:
+#          sql: "SELECT * FROM 'some_topic'"
+#      - cloudwatchEvent:
+#          event:
+#            source:
+#              - "aws.ec2"
+#            detail-type:
+#              - "EC2 Instance State-change Notification"
+#            detail:
+#              state:
+#                - pending
+#      - cloudwatchLog: '/aws/lambda/hello'
+#      - cognitoUserPool:
+#          pool: MyUserPool
+#          trigger: PreSignUp
+#      - alb:
+#          listenerArn: arn:aws:elasticloadbalancing:us-east-1:XXXXXX:listener/app/my-load-balancer/50dc6c495c0c9188/
+#          priority: 1
+#          conditions:
+#            host: example.com
+#            path: /hello
+
+#    Define function environment variables here
+#    environment:
+#      variable2: value2
+
+# you can add CloudFormation resource templates here
+#resources:
+#  Resources:
+#    NewResource:
+#      Type: AWS::S3::Bucket
+#      Properties:
+#        BucketName: my-new-bucket
+#  Outputs:
+#     NewOutput:
+#       Description: "Description for the output"
+#       Value: "Some output value"
